@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+
+    <h1>Dashboard Report</h1>
+
+    <div id="result"></div>
+
+    <script>
+        console.log("JS jalan");
+
+        fetch("/chart-data/")
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+
+            document.getElementById("result").innerHTML =
+                "Labels: " + data.labels +
+                "<br>Values: " + data.values;
+        })
+        .catch(error => console.log(error));
+    </script>
+
+</body>
+</html>

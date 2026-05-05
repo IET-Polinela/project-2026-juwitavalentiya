@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3 class="text-center mb-4">🌸 Daftar Laporan Kota 🌸</h3>
+
+<a class="btn btn-primary mb-3" href="/add/">+ Tambah Laporan</a>
+
+<table class="table table-hover shadow-sm">
+
+    <tr>
+        <th>Judul</th>
+        <th>Kategori</th>
+        <th>Lokasi</th>
+        <th>Deskripsi</th>
+        <th>Status</th>
+        <th>Aksi</th>
+    </tr>
+
+    {% for report in reports %}
+    <tr>
+        <td><b>{{ report.title }}</b></td>
+        <td>{{ report.category }}</td>
+        <td>{{ report.location }}</td>
+        <td>{{ report.description }}</td>
+
+        <!-- 🌸 STATUS BADGE -->
+        <td>
+            {% if report.status == "REPORTED" %}
+                <span class="badge bg-secondary">Reported</span>
+
+            {% elif report.status == "VERIFIED" %}
+                <span class="badge bg-primary">Verified</span>
+
+            {% elif report.status == "IN_PROGRESS" %}
+                <span class="badge bg-warning text-dark">In Progress</span>
+
+            {% else %}
+                <span class="badge bg-success">Resolved</span>
+            {% endif %}
+        </td>
+
+        <!-- 🌸 AKSI -->
+        <td>
+
+            <!-- EDIT -->
+            <a class="btn btn-sm btn-warning"
+               href="/edit/{{ report.id }}"
+               onclick="return confirm('Apakah kamu yakin ingin mengedit laporan ini?');">
+               Edit
+            </a>
+
+            <!-- 🔥 FIX DELETE (POST - NO 405 ERROR) -->
+            <form action="/delete/{{ report.id }}/"
+                  method="post"
+                  style="display:inline;">
+
+                {% csrf_token %}
+
+                <button class="btn btn-sm btn-danger"
+                        onclick="return confirm('⚠️ Yakin ingin menghapus laporan ini?')">
+                    Hapus
+                </button>
+            </form>
+
+            <!-- 🌸 FORM UPDATE STATUS -->
+            <form method="post"
+                  action="/status/{{ report.id }}/"
+                  class="mt-2"
+                  onsubmit="return confirmStatus(this);">
+
+                {% csrf_token %}
+
+                <select name="status" class="form-select form-select-sm mb-1">
+
+                    {% if report.status == "REPORTED" %}
+                        <option value="VERIFIED">Ubah ke VERIFIED</option>
+
+                    {% elif report.status == "VERIFIED" %}
+                        <option value="IN_PROGRESS">Ubah ke IN PROGRESS</option>
+
+                    {% elif report.status == "IN_PROGRESS" %}
+                        <option value="RESOLVED">Ubah ke RESOLVED</option>
+
+                    {% else %}
+                        <option disabled>Sudah Selesai</option>
+                    {% endif %}
+
+                </select>
+
+                <button class="btn btn-sm btn-success w-100" type="submit">
+                    Update Status
+                </button>
+
+            </form>
+
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+<!-- 🌸 EMPTY STATE -->
+{% if not reports %}
+<div class="alert alert-info text-center mt-3">
+    🌸 Belum ada laporan yang tersedia
+</div>
+{% endif %}
+
+<!-- 🌸 CONFIRM SCRIPT -->
+<script>
+function confirmStatus(form) {
+
+    let selected = form.status.value;
+    let message = "";
+
+    if (selected === "VERIFIED") {
+        message = "Apakah kamu yakin ingin mengubah status menjadi VERIFIED?";
+    }
+    else if (selected === "IN_PROGRESS") {
+        message = "Apakah kamu yakin ingin mengubah status menjadi IN PROGRESS?";
+    }
+    else if (selected === "RESOLVED") {
+        message = "Apakah kamu yakin ingin mengubah status menjadi RESOLVED?";
+    }
+    else {
+        message = "Apakah kamu yakin ingin mengubah status ini?";
+    }
+
+    return confirm(message + "\n\n✔ OK = Ya\n✖ Cancel = Tidak");
+}
+</script>
+
+{% endblock %}
