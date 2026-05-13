@@ -19,6 +19,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Django REST Framework
+    'rest_framework',
+
+    # Apps
     'main_app',
     'about',
     'contacts',
@@ -34,7 +38,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 
-    # (MESSAGE SYSTEM WAJIB ADA)
+    # Message System
     'django.contrib.messages.middleware.MessageMiddleware',
 
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -44,7 +48,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'npm24782014_iet_2026.urls'
 
 
-# (WAJIB UNTUK base.html)
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -103,7 +106,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+
 AUTH_USER_MODEL = 'usermanagement_24782014.CustomUser'
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

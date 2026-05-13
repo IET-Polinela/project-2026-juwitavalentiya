@@ -4,18 +4,28 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
 
+    # Admin
     path('admin/', admin.site.urls),
 
+    # Main App
     path('', include('main_app.urls')),
 
+    # About
     path('about/', include('about.urls')),
 
+    # Contacts
     path('contacts/', include('contacts.urls')),
 
     # Dashboard
     path(
         'dashboard/',
         include('dashboard_24782014.urls')
+    ),
+
+    # DRF API
+    path(
+        'api/',
+        include('main_app.api_urls')
     ),
 
     # Authentication
