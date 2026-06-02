@@ -10,7 +10,9 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-# Application definition
+# =========================================
+# APPLICATIONS
+# =========================================
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -19,10 +21,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Django REST Framework
+    # DRF
     'rest_framework',
+    'rest_framework_simplejwt',
 
-    # Apps
+    # APPS
     'main_app',
     'about',
     'contacts',
@@ -31,16 +34,16 @@ INSTALLED_APPS = [
 ]
 
 
+# =========================================
+# MIDDLEWARE
+# =========================================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-
-    # Message System
     'django.contrib.messages.middleware.MessageMiddleware',
-
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -48,6 +51,9 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'npm24782014_iet_2026.urls'
 
 
+# =========================================
+# TEMPLATES
+# =========================================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -67,6 +73,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'npm24782014_iet_2026.wsgi.application'
 
 
+# =========================================
+# DATABASE
+# =========================================
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -79,38 +88,52 @@ DATABASES = {
 }
 
 
+# =========================================
+# AUTH
+# =========================================
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
-
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_TZ = True
-
-
-STATIC_URL = 'static/'
-
 
 AUTH_USER_MODEL = 'usermanagement_24782014.CustomUser'
 
+
+# =========================================
+# INTERNATIONALIZATION
+# =========================================
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
+
+# =========================================
+# STATIC
+# =========================================
+STATIC_URL = 'static/'
+
+
+# =========================================
+# LOGIN SYSTEM (WEB)
+# =========================================
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 
 
+# =========================================
+# DRF + JWT CONFIG (LAB 10)
+# =========================================
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+
+# =========================================
+# DEFAULT AUTO FIELD
+# =========================================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

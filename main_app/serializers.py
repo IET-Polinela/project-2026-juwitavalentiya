@@ -1,13 +1,11 @@
 from rest_framework import serializers
 from .models import Report
 
+
 class ReportSerializer(serializers.ModelSerializer):
 
-    reporter = serializers.SerializerMethodField()
+    reporter = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = Report
         fields = '__all__'
-
-    def get_reporter(self, obj):
-        return "Warga Anonim"
