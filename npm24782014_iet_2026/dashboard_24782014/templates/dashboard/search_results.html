@@ -1,0 +1,17 @@
+{% for report in reports %}
+
+<div class="card p-3 mb-2">
+
+    <h5>{{ report.title }}</h5>
+
+    <p>{{ report.category }}</p>
+
+    <p>{{ report.status }}</p>
+
+</div>
+
+{% empty %}
+
+<p>Tidak ada data.</p>
+
+{% endfor %}

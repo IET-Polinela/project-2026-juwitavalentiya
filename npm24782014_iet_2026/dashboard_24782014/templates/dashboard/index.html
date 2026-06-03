@@ -1,0 +1,512 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pink Dashboard</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        body {
+            background: linear-gradient(to bottom right, #ffe6f2, #f9e6ff);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+        }
+
+        .dashboard-title {
+            color: #d63384;
+            font-weight: 700;
+        }
+
+        .custom-card {
+            border: none;
+            border-radius: 25px;
+            background: white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transition: 0.3s;
+        }
+
+        .custom-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .table {
+            overflow: hidden;
+            border-radius: 20px;
+            background: #fff7fb;
+        }
+
+        .report-section {
+            background: linear-gradient(to bottom right, #fff0f6, #fdf4ff);
+            border-radius: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            border: 2px solid #f8d7e8;
+        }
+
+        .report-section table tbody tr:hover {
+            background-color: #ffeaf4;
+            transition: 0.3s;
+        }
+
+        .report-section h3 {
+            color: #c2185b;
+        }
+
+        .table thead {
+            background: linear-gradient(
+                to right,
+                #f8c8dc,
+                #d8c4ff,
+                #cde7ff
+            );
+        }
+
+        .table thead th {
+            background-color: transparent !important;
+            color: #7a2c5b !important;
+            font-weight: 600;
+            border: none;
+        }
+
+        .search-box {
+            border-radius: 20px;
+            border: 2px solid #f3b6d4;
+            padding: 12px;
+        }
+
+        .section-title {
+            color: #c2185b;
+            font-weight: 600;
+        }
+
+        .detail-btn {
+            border-radius: 15px;
+        }
+
+        .modal-content {
+            border-radius: 25px;
+            border: none;
+            background: linear-gradient(
+                to bottom right,
+                #fff0f6,
+                #fdf4ff
+            );
+        }
+
+        .modal-header {
+            border-bottom: none;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container py-5">
+
+    <h1 class="text-center mb-5 dashboard-title">
+        🎀 Dashboard Statistik Laporan 🎀
+    </h1>
+
+    <!-- SEARCH -->
+
+    <div class="mb-5">
+
+        <input
+            type="text"
+            id="searchInput"
+            class="form-control search-box"
+            placeholder="Cari laporan lucu di sini... 💖"
+        >
+
+    </div>
+
+    <!-- HASIL SEARCH -->
+
+    <div id="searchResults" class="mb-5"></div>
+
+    <!-- CHART -->
+
+    <div class="row g-4">
+
+        <!-- STATUS -->
+
+        <div class="col-md-6">
+
+            <div class="custom-card p-4 h-100">
+
+                <h4 class="text-center mb-4 section-title">
+                    🍓 Distribusi Status
+                </h4>
+
+                <canvas id="statusChart"></canvas>
+
+            </div>
+
+        </div>
+
+        <!-- CATEGORY -->
+
+        <div class="col-md-6">
+
+            <div class="custom-card p-4 h-100">
+
+                <h4 class="text-center mb-4 section-title">
+                    🌸 Distribusi Kategori
+                </h4>
+
+                <canvas id="categoryChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- REPORTED -->
+
+    <div class="mt-5 report-section p-4">
+
+        <h3 class="text-center mb-4 section-title">
+            📄 5 Laporan Terbaru (REPORTED)
+        </h3>
+
+        <div class="table-responsive">
+
+            <table class="table table-striped text-center align-middle">
+
+                <thead>
+
+                    <tr>
+                        <th>Judul</th>
+                        <th>Kategori</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for report in latest_reports %}
+
+                    <tr>
+
+                        <td>{{ report.title }}</td>
+
+                        <td>{{ report.category }}</td>
+
+                        <td>{{ report.status }}</td>
+
+                        <td>
+
+                            <button
+                                class="btn btn-sm btn-outline-danger detail-btn"
+                                data-id="{{ report.id }}"
+                            >
+                                Detail
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- RESOLVED -->
+
+    <div class="mt-5 report-section p-4 mb-5">
+
+        <h3 class="text-center mb-4 section-title">
+            ✅ 5 Laporan Selesai (RESOLVED)
+        </h3>
+
+        <div class="table-responsive">
+
+            <table class="table table-striped text-center align-middle">
+
+                <thead>
+
+                    <tr>
+                        <th>Judul</th>
+                        <th>Kategori</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for report in resolved_reports %}
+
+                    <tr>
+
+                        <td>{{ report.title }}</td>
+
+                        <td>{{ report.category }}</td>
+
+                        <td>{{ report.status }}</td>
+
+                        <td>
+
+                            <button
+                                class="btn btn-sm btn-outline-danger detail-btn"
+                                data-id="{{ report.id }}"
+                            >
+                                Detail
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- MODAL DETAIL -->
+
+<div
+    class="modal fade"
+    id="detailModal"
+    tabindex="-1"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    💖 Detail Laporan
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
+
+            </div>
+
+            <div
+                class="modal-body"
+                id="modalBody"
+            >
+
+                Loading...
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- JSON DATA -->
+
+{{ status_data|json_script:"status-data" }}
+
+{{ category_data|json_script:"category-data" }}
+
+<script>
+
+    // =========================
+    // JSON DATA
+    // =========================
+
+    const statusData = JSON.parse(
+        document.getElementById('status-data').textContent
+    );
+
+    const categoryData = JSON.parse(
+        document.getElementById('category-data').textContent
+    );
+
+    // =========================
+    // STATUS CHART
+    // =========================
+
+    new Chart(document.getElementById('statusChart'), {
+
+        type: 'doughnut',
+
+        data: {
+
+            labels: statusData.map(item => item.status),
+
+            datasets: [{
+
+                label: 'Jumlah Status',
+
+                data: statusData.map(item => item.total),
+
+                backgroundColor: [
+                    '#FFD6E8',
+                    '#CDE7FF',
+                    '#D8F3DC',
+                    '#FFF1B6'
+                ],
+
+                borderWidth: 1
+
+            }]
+        }
+
+    });
+
+    // =========================
+    // CATEGORY CHART
+    // =========================
+
+    new Chart(document.getElementById('categoryChart'), {
+
+        type: 'bar',
+
+        data: {
+
+            labels: categoryData.map(item => item.category),
+
+            datasets: [{
+
+                label: 'Jumlah Kategori',
+
+                data: categoryData.map(item => item.total),
+
+                backgroundColor: [
+                    '#FFCAD4',
+                    '#BDE0FE',
+                    '#CDEAC0',
+                    '#FFF1C1',
+                    '#E4C1F9'
+                ],
+
+                borderWidth: 1
+
+            }]
+        }
+
+    });
+
+    // =========================
+    // LIVE SEARCH
+    // =========================
+
+    const searchInput =
+        document.getElementById('searchInput');
+
+    searchInput.addEventListener('keyup', function () {
+
+        let query = this.value;
+
+        fetch(`/dashboard/search/?q=${query}`)
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            document.getElementById('searchResults').innerHTML =
+                data.html;
+
+        });
+
+    });
+
+    // =========================
+    // DETAIL MODAL
+    // EVENT DELEGATION
+    // =========================
+
+    document.addEventListener('click', function(e) {
+
+        if (e.target.classList.contains('detail-btn')) {
+
+            let reportId = e.target.dataset.id;
+
+            fetch(`/dashboard/detail/${reportId}/`)
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                document.getElementById('modalBody').innerHTML = `
+
+                    <p><b>Judul:</b> ${data.title}</p>
+
+                    <p><b>Kategori:</b> ${data.category}</p>
+
+                    <p><b>Status:</b> ${data.status}</p>
+
+                    <p><b>Deskripsi:</b> ${data.description}</p>
+
+                    <p><b>Lokasi:</b> ${data.location}</p>
+
+                `;
+
+                const modal = new bootstrap.Modal(
+                    document.getElementById('detailModal')
+                );
+
+                modal.show();
+
+            });
+
+        }
+
+    });
+
+</script>
+
+<!-- Bootstrap JS -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+></script>
+
+</body>
+</html>

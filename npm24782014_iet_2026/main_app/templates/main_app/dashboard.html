@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+
+    <h1>Dashboard Report</h1>
+
+    <div id="result"></div>
+
+    <script>
+        console.log("JS jalan");
+
+        fetch("/chart-data/")
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+
+            document.getElementById("result").innerHTML =
+                "<b>Status Labels:</b> " + data.status_labels +
+                "<br><b>Status Values:</b> " + data.status_data +
+                "<br><br><b>Category Labels:</b> " + data.category_labels +
+                "<br><b>Category Values:</b> " + data.category_data;
+        })
+        .catch(error => console.log(error));
+    </script>
+
+</body>
+</html>
