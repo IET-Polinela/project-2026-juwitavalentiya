@@ -72,3 +72,29 @@ def report_detail(request, report_id):
     }
 
     return JsonResponse(data)
+
+
+def search_reports(request):
+    query = request.GET.get('q', '').strip()
+
+    reports = Report.objects.all()
+    if query:
+        reports = reports.filter(title__icontains=query)
+
+    results_html = ''
+    if reports.exists():
+        for report in reports.order_by('-created_at')[:10]:
+            results_html += f'''
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{report.title}</h5>
+                        <p class="card-text mb-1"><strong>Kategori:</strong> {report.category}</p>
+                        <p class="card-text mb-1"><strong>Status:</strong> {report.status}</p>
+                        <button class="btn btn-sm btn-outline-danger detail-btn" data-id="{report.id}">Detail</button>
+                    </div>
+                </div>
+            '''
+    else:
+        results_html = '<div class="alert alert-info">Tidak ada laporan yang cocok.</div>'
+
+    return JsonResponse({'html': results_html})

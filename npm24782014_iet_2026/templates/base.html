@@ -28,6 +28,7 @@
             background-color: #ff4da6;
         }
     </style>
+    {% block extra_head %}{% endblock %}
 </head>
 
 <body>
@@ -36,18 +37,22 @@
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
 
-        <a class="navbar-brand fw-bold" href="/">🌸 Smart City</a>
+        <a class="navbar-brand fw-bold" href="{% url 'report_list' %}">🌸 Smart City</a>
 
         <ul class="navbar-nav ms-auto">
 
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link" href="{% url 'report_list' %}">Home</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
             </li>
 
             <!-- 🔐 ONLY ADMIN -->
             {% if user.is_authenticated and user.is_admin %}
             <li class="nav-item">
-                <a class="nav-link" href="/add/">Add</a>
+                <a class="nav-link" href="{% url 'report_add' %}">Add</a>
             </li>
             {% endif %}
 
@@ -68,7 +73,7 @@
 
                 <!-- 🔥 FIX: LOGOUT HARUS POST (BUKAN GET) -->
                 <li class="nav-item">
-                    <form action="/logout/" method="post" style="display:inline;">
+                    <form action="{% url 'logout' %}" method="post" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" class="nav-link btn btn-link text-warning">
                             Logout
@@ -79,7 +84,7 @@
             {% else %}
 
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="/login/">Login</a>
+                    <a class="nav-link text-white" href="{% url 'login' %}">Login</a>
                 </li>
 
             {% endif %}
@@ -106,7 +111,9 @@
     {% endblock %}
 </div>
 
-<!-- Bootstrap JS -->
+{% block extra_js %}{% endblock %}
+
+    <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

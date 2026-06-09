@@ -20,6 +20,15 @@ class ReportListView(ListView):
     template_name = 'main_app/home.html'
     context_object_name = 'reports'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_reports'] = Report.objects.count()
+        context['reported_count'] = Report.objects.filter(status='REPORTED').count()
+        context['verified_count'] = Report.objects.filter(status='VERIFIED').count()
+        context['in_progress_count'] = Report.objects.filter(status='IN_PROGRESS').count()
+        context['resolved_count'] = Report.objects.filter(status='RESOLVED').count()
+        return context
+
 
 # =========================================
 # DASHBOARD PAGE

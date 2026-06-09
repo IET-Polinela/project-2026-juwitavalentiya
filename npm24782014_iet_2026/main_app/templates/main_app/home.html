@@ -1,134 +1,141 @@
 {% extends 'base.html' %}
 
+{% block extra_head %}
+<style>
+    .home-header {
+        padding: 40px 0 20px;
+    }
+
+    .home-title {
+        color: #d63384;
+        font-weight: 700;
+    }
+
+    .summary-card {
+        border-radius: 24px;
+        background: white;
+        box-shadow: 0 16px 40px rgba(255, 105, 180, 0.16);
+        transition: transform 0.25s ease;
+    }
+
+    .summary-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .report-table {
+        border-radius: 22px;
+        overflow: hidden;
+        background: #fff7fb;
+        box-shadow: 0 14px 36px rgba(230, 47, 122, 0.08);
+    }
+
+    .report-table th {
+        background: linear-gradient(90deg, #ffcad4, #d8c4ff);
+        color: #7a2c5b;
+        font-weight: 600;
+    }
+
+    .report-table tbody tr:hover {
+        background: #ffeaf4;
+    }
+
+    .badge-status {
+        padding: 0.45rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .home-actions {
+        margin-bottom: 24px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+<div class="home-header text-center">
+    <h2 class="home-title">🌸 Daftar Laporan Kota</h2>
+    <p class="text-muted">Kelola semua laporan masuk sekaligus lihat status dan aksi cepat tanpa perpindahan halaman yang berlebihan.</p>
+</div>
 
-<h3 class="text-center mb-4">🌸 Daftar Laporan Kota 🌸</h3>
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="summary-card p-4 text-center">
+            <h5 class="text-pink">Total Laporan</h5>
+            <p class="fs-3 fw-bold">{{ total_reports }}</p>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="summary-card p-4 text-center">
+            <h5 class="text-pink">Reported</h5>
+            <p class="fs-3 fw-bold">{{ reported_count }}</p>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="summary-card p-4 text-center">
+            <h5 class="text-pink">Verified</h5>
+            <p class="fs-3 fw-bold">{{ verified_count }}</p>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="summary-card p-4 text-center">
+            <h5 class="text-pink">Resolved</h5>
+            <p class="fs-3 fw-bold">{{ resolved_count }}</p>
+        </div>
+    </div>
+</div>
 
-<a class="btn btn-primary mb-3" href="/add/">+ Tambah Laporan</a>
+<div class="home-actions d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+    <a class="btn btn-primary btn-lg" href="{% url 'report_add' %}">+ Tambah Laporan</a>
+    <span class="text-muted">Klik tombol action untuk mengedit, menghapus, atau memperbarui status laporan.</span>
+</div>
 
-<table class="table table-hover shadow-sm">
-
-    <tr>
-        <th>Judul</th>
-        <th>Kategori</th>
-        <th>Lokasi</th>
-        <th>Deskripsi</th>
-        <th>Status</th>
-        <th>Aksi</th>
-    </tr>
-
-    {% for report in reports %}
-    <tr>
-        <td><b>{{ report.title }}</b></td>
-        <td>{{ report.category }}</td>
-        <td>{{ report.location }}</td>
-        <td>{{ report.description }}</td>
-
-        <!-- 🌸 STATUS BADGE -->
-        <td>
-            {% if report.status == "REPORTED" %}
-                <span class="badge bg-secondary">Reported</span>
-
-            {% elif report.status == "VERIFIED" %}
-                <span class="badge bg-primary">Verified</span>
-
-            {% elif report.status == "IN_PROGRESS" %}
-                <span class="badge bg-warning text-dark">In Progress</span>
-
-            {% else %}
-                <span class="badge bg-success">Resolved</span>
-            {% endif %}
-        </td>
-
-        <!-- 🌸 AKSI -->
-        <td>
-
-            <!-- EDIT -->
-            <a class="btn btn-sm btn-warning"
-               href="/edit/{{ report.id }}"
-               onclick="return confirm('Apakah kamu yakin ingin mengedit laporan ini?');">
-               Edit
-            </a>
-
-            <!-- 🔥 FIX DELETE (POST - NO 405 ERROR) -->
-            <form action="/delete/{{ report.id }}/"
-                  method="post"
-                  style="display:inline;">
-
-                {% csrf_token %}
-
-                <button class="btn btn-sm btn-danger"
-                        onclick="return confirm('⚠️ Yakin ingin menghapus laporan ini?')">
-                    Hapus
-                </button>
-            </form>
-
-            <!-- 🌸 FORM UPDATE STATUS -->
-            <form method="post"
-                  action="/status/{{ report.id }}/"
-                  class="mt-2"
-                  onsubmit="return confirmStatus(this);">
-
-                {% csrf_token %}
-
-                <select name="status" class="form-select form-select-sm mb-1">
-
+<div class="table-responsive report-table">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>Judul</th>
+                <th>Kategori</th>
+                <th>Lokasi</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td><strong>{{ report.title }}</strong></td>
+                <td>{{ report.category }}</td>
+                <td>{{ report.location }}</td>
+                <td>
                     {% if report.status == "REPORTED" %}
-                        <option value="VERIFIED">Ubah ke VERIFIED</option>
-
+                        <span class="badge-status bg-secondary text-white">Reported</span>
                     {% elif report.status == "VERIFIED" %}
-                        <option value="IN_PROGRESS">Ubah ke IN PROGRESS</option>
-
+                        <span class="badge-status bg-primary text-white">Verified</span>
                     {% elif report.status == "IN_PROGRESS" %}
-                        <option value="RESOLVED">Ubah ke RESOLVED</option>
-
+                        <span class="badge-status bg-warning text-dark">In Progress</span>
                     {% else %}
-                        <option disabled>Sudah Selesai</option>
+                        <span class="badge-status bg-success text-white">Resolved</span>
                     {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                        <a class="btn btn-sm btn-warning" href="{% url 'report_edit' report.id %}">Edit</a>
+                        <form action="{% url 'report_delete' report.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="btn btn-sm btn-danger" onclick="return confirm('⚠️ Yakin ingin menghapus laporan ini?')">Hapus</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-                </select>
-
-                <button class="btn btn-sm btn-success w-100" type="submit">
-                    Update Status
-                </button>
-
-            </form>
-
-        </td>
-    </tr>
-    {% endfor %}
-
-</table>
-
-<!-- 🌸 EMPTY STATE -->
 {% if not reports %}
-<div class="alert alert-info text-center mt-3">
+<div class="alert alert-info text-center mt-4">
     🌸 Belum ada laporan yang tersedia
 </div>
 {% endif %}
-
-<!-- 🌸 CONFIRM SCRIPT -->
-<script>
-function confirmStatus(form) {
-
-    let selected = form.status.value;
-    let message = "";
-
-    if (selected === "VERIFIED") {
-        message = "Apakah kamu yakin ingin mengubah status menjadi VERIFIED?";
-    }
-    else if (selected === "IN_PROGRESS") {
-        message = "Apakah kamu yakin ingin mengubah status menjadi IN PROGRESS?";
-    }
-    else if (selected === "RESOLVED") {
-        message = "Apakah kamu yakin ingin mengubah status menjadi RESOLVED?";
-    }
-    else {
-        message = "Apakah kamu yakin ingin mengubah status ini?";
-    }
-
-    return confirm(message + "\n\n✔ OK = Ya\n✖ Cancel = Tidak");
-}
-</script>
-
 {% endblock %}
