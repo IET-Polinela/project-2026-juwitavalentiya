@@ -2,6 +2,7 @@ from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
+from drf_spectacular.utils import extend_schema # <-- 1. TAMBAHKAN IMPORT INI
 
 from .models import Report
 from .serializers import ReportSerializer
@@ -47,3 +48,7 @@ class ReportViewSet(viewsets.ModelViewSet):
             permissions.append(IsOwnerDraftOrAdmin())
 
         return permissions
+
+    @extend_schema(exclude=True)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)

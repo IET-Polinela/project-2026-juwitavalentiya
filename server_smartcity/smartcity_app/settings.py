@@ -21,14 +21,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # CORS
     'corsheaders',
-
-    # DRF
     'rest_framework',
     'rest_framework_simplejwt',
 
-    # APPS
+    # Tambahkan dua baris ini di bawah rest_framework:
+    'drf_spectacular',
+    'django_scalar',
+
     'main_app',
     'about',
     'contacts',
@@ -134,6 +134,7 @@ LOGOUT_REDIRECT_URL = '/login/'
 # DRF + JWT CONFIG (LAB 10)
 # =========================================
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -156,3 +157,13 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# =========================================
+# OPENAPI METADATA CONFIG (LAB 14)
+# =========================================
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Smart City Portal API',  # [cite: 47]
+    'DESCRIPTION': 'Dokumentasi REST API resmi untuk Portal Pelaporan Laporan Warga',  # [cite: 48]
+    'VERSION': '1.0.0',  # [cite: 49]
+    'SERVE_INCLUDE_SCHEMA': False,  # [cite: 50]
+}

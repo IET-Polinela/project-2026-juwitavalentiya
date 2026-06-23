@@ -11,6 +11,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Report
 from .forms import ReportForm
 
+# =========================================
+# ADDED FOR LAB 14: OPENAPI UTILS
+# =========================================
+from drf_spectacular.utils import extend_schema
+
 
 # =========================================
 # HOME / REPORT LIST
@@ -125,6 +130,7 @@ def search_reports(request):
 # =========================================
 # DETAIL MODAL API
 # =========================================
+@extend_schema(exclude=True)
 def report_detail_api(request, pk):
 
     report = get_object_or_404(
