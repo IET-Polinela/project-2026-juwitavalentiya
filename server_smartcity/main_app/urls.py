@@ -8,20 +8,37 @@ from .views import (
     report_stats_api,
     search_reports,
     report_detail_api,
+    home_view,
 )
 
 urlpatterns = [
 
-    # REPORT MANAGEMENT
-    path('', ReportListView.as_view(), name='report_list'),
-    path('add/', ReportCreateView.as_view(), name='report_add'),
-    path('edit/<int:pk>/', ReportUpdateView.as_view(), name='report_edit'),
-    path('delete/<int:pk>/', ReportDeleteView.as_view(), name='report_delete'),
-    path('status/<int:pk>/', ReportUpdateStatusView.as_view(), name='report_status_update'),
+    # HALAMAN PUBLIK
+    path('home/', home_view, name='home'),
 
-    # APIs
+    # REPORT MANAGEMENT (ADMIN) - tiap view diberi 2 nama (alias)
+    path('', ReportListView.as_view(), name='report_list'),
+    path('reports/', ReportListView.as_view(), name='reports_list'),
+
+    path('add/', ReportCreateView.as_view(), name='report_add'),
+    path('add/', ReportCreateView.as_view(), name='add_report'),
+
+    path('edit/<int:pk>/', ReportUpdateView.as_view(), name='report_edit'),
+    path('edit/<int:pk>/', ReportUpdateView.as_view(), name='update_report'),
+
+    path('delete/<int:pk>/', ReportDeleteView.as_view(), name='report_delete'),
+    path('delete/<int:pk>/', ReportDeleteView.as_view(), name='delete_report'),
+
+    path('status/<int:pk>/', ReportUpdateStatusView.as_view(), name='report_status_update'),
+    path('status/<int:pk>/', ReportUpdateStatusView.as_view(), name='update_status'),
+    path('status/<int:pk>/', ReportUpdateStatusView.as_view(), name='update_report_status'),
+
+    # APIs / UTILITAS
     path('chart-data/', report_stats_api, name='report_stats_api'),
+
     path('search/', search_reports, name='report_search_api'),
+    path('search/', search_reports, name='report_search'),
+
     path('api/detail/<int:pk>/', report_detail_api, name='report_detail'),
 
 ]

@@ -3,7 +3,7 @@ from django.views import View
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.db.models import Count
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -18,12 +18,36 @@ from drf_spectacular.utils import extend_schema
 
 
 # =========================================
-# HOME / REPORT LIST
+# HALAMAN PUBLIK (bebas diakses siapa saja)
 # =========================================
-class ReportListView(ListView):
+def home_view(request):
+    context = {
+        'total_reports': Report.objects.count(),
+        'reported_count': Report.objects.filter(status='REPORTED').count(),
+        'verified_count': Report.objects.filter(status='VERIFIED').count(),
+        'in_progress_count': Report.objects.filter(status='IN_PROGRESS').count(),
+        'resolved_count': Report.objects.filter(status='RESOLVED').count(),
+    }
+    return render(request, 'main_app/home.html', context)
+
+
+# =========================================
+# REPORT LIST (KHUSUS ADMIN)
+# =========================================
+class ReportListView(LoginRequiredMixin, ListView):
     model = Report
-    template_name = 'main_app/home.html'
+    template_name = 'main_app/report_list.html'
     context_object_name = 'reports'
+    login_url = 'login'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+
+        if not (request.user.is_admin or request.user.is_superuser):
+            return redirect('login')
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -102,9 +126,12 @@ def report_stats_api(request):
 
 
 # =========================================
-# LIVE SEARCH API
+# LIVE SEARCH API (KHUSUS ADMIN)
 # =========================================
 def search_reports(request):
+
+    if not (request.user.is_authenticated and (request.user.is_admin or request.user.is_superuser)):
+        return HttpResponseForbidden()
 
     query = request.GET.get('q', '')
 
@@ -113,7 +140,8 @@ def search_reports(request):
     )[:10]
 
     data = {
-        'reports': [
+        'count': len(reports),
+        'results': [
             {
                 'id': r.id,
                 'title': r.title,
@@ -127,11 +155,15 @@ def search_reports(request):
     return JsonResponse(data)
 
 
-# =========================================
-# DETAIL MODAL API
-# =========================================
 @extend_schema(exclude=True)
 def report_detail_api(request, pk):
+
+    user = getattr(request, 'user', None)
+    if user is not None:
+        if not user.is_authenticated:
+            return redirect('login')
+        if not (user.is_admin or user.is_superuser):
+            return redirect('login')
 
     report = get_object_or_404(
         Report,
@@ -180,6 +212,8 @@ class ReportCreateView(LoginRequiredMixin, CreateView):
         )
 
     def form_valid(self, form):
+
+        form.instance.reporter = self.request.user
 
         messages.success(
             self.request,
@@ -298,12 +332,20 @@ class ReportUpdateStatusView(LoginRequiredMixin, View):
             pk=pk
         )
 
-        report.status = request.POST.get('status')
-        report.save()
+        new_status = request.POST.get('new_status')
 
-        messages.success(
-            request,
-            "🔄 Status berhasil diperbarui"
-        )
+        if new_status in report.get_valid_next_statuses():
+            report.status = new_status
+            report.save()
+
+            messages.success(
+                request,
+                "🔄 Status berhasil diperbarui"
+            )
+        else:
+            messages.error(
+                request,
+                "❌ Transisi status tidak valid (tidak boleh melompat tahap)"
+            )
 
         return redirect('report_list')

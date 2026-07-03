@@ -24,5 +24,24 @@ async function requestAPI(endpoint, method = "GET", data = null) {
         options
     );
 
+    // ====================================================================
+    // ERROR HANDLING: Handle 401 Unauthorized (token expired/invalid)
+    // ====================================================================
+    if (response.status === 401) {
+        // Clear localStorage untuk menghapus token yang sudah tidak valid
+        localStorage.clear();
+
+        // Show alert ke user
+        alert("Sesi Anda telah habis. Silakan login kembali.");
+
+        // Redirect ke halaman login
+        window.location.hash = "#login";
+
+        // Trigger router untuk merender halaman login
+        if (typeof router === 'function') {
+            router();
+        }
+    }
+
     return response;
 }

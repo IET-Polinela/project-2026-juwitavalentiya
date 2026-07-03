@@ -3,7 +3,7 @@ from .api_views import ReportViewSet
 
 router = DefaultRouter()
 
-# UBAH report → reports (biar sesuai lab & konsisten)
-router.register(r'reports', ReportViewSet)
+# Path tunggal /api/report/ sesuai matriks pengujian resmi lab.
+router.register(r'report', ReportViewSet)
 
 urlpatterns = router.urls

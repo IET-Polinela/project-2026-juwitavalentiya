@@ -3,10 +3,10 @@ async function login(event) {
     event.preventDefault();
 
     const username =
-        document.getElementById("username").value;
+        document.getElementById("loginUsername").value;
 
     const password =
-        document.getElementById("password").value;
+        document.getElementById("loginPassword").value;
 
     const response = await requestAPI(
         "/api/token/",

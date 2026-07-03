@@ -4,6 +4,22 @@ function router() {
 
     const hash = window.location.hash;
 
+    // ====================================================================
+    // AUTH GUARD: Redirect unauthenticated users to #login
+    // ====================================================================
+    // Jika user mencoba akses #dashboard tanpa token, redirect ke #login
+    const hasToken = localStorage.getItem('access_token');
+    if (hash === "#dashboard" && !hasToken) {
+        window.location.hash = "#login";
+        return;
+    }
+
+    // Jika user sudah login dan akses #login atau #register, redirect ke #dashboard
+    if (hasToken && (hash === "#login" || hash === "#register" || hash === "")) {
+        window.location.hash = "#dashboard";
+        return;
+    }
+
     if (hash === "#dashboard") {
 
         app.innerHTML = `
@@ -22,26 +38,30 @@ function router() {
                 <a class="sidebar-link" href="javascript:void(0);" onclick="logout()">Logout</a>
 
                 <div class="sidebar-cta">
-                    <button class="btn btn-light btn-lg text-dark fw-semibold" id="addReportBtn">+ Laporan Baru</button>
+                    <button class="btn btn-light btn-lg text-dark fw-semibold" id="btnBukaModal">+ Laporan Baru</button>
                 </div>
 
-                <div class="status-summary">
+                <div id="summaryStats" class="status-summary">
                     <h6>Rekap Status</h6>
                     <div class="status-summary-item">
                         <span>Draft</span>
-                        <strong id="reportedCount">0</strong>
+                        <strong class="badge bg-secondary" id="draftCount">0</strong>
                     </div>
                     <div class="status-summary-item">
                         <span>Reported</span>
-                        <strong id="verifiedCount">0</strong>
+                        <strong class="badge bg-secondary" id="reportedCount">0</strong>
                     </div>
                     <div class="status-summary-item">
                         <span>Verified</span>
-                        <strong id="inProgressCount">0</strong>
+                        <strong class="badge bg-secondary" id="verifiedCount">0</strong>
+                    </div>
+                    <div class="status-summary-item">
+                        <span>In Progress</span>
+                        <strong class="badge bg-secondary" id="inProgressCount">0</strong>
                     </div>
                     <div class="status-summary-item">
                         <span>Resolved</span>
-                        <strong id="resolvedCount">0</strong>
+                        <strong class="badge bg-secondary" id="resolvedCount">0</strong>
                     </div>
                 </div>
             </aside>
@@ -63,7 +83,7 @@ function router() {
 
                 <div class="content-grid">
                     <div>
-                        <div class="report-list" id="dashboardList"></div>
+                        <div class="report-list" id="listContainer"></div>
                         <div id="paginationContainer" class="mt-3"></div>
                     </div>
 
@@ -116,6 +136,12 @@ function router() {
     } else {
 
         app.innerHTML = `
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <span class="navbar-brand">Smart Report</span>
+            </div>
+        </nav>
+        
         <div class="row justify-content-center">
 
             <div class="col-md-6">
@@ -128,17 +154,17 @@ function router() {
 
                     <div class="card-body">
 
-                        <form onsubmit="login(event)">
+                        <form id="loginForm" onsubmit="login(event)">
 
                             <input
                                 type="text"
-                                id="username"
+                                id="loginUsername"
                                 class="form-control mb-3"
                                 placeholder="Username">
 
                             <input
                                 type="password"
-                                id="password"
+                                id="loginPassword"
                                 class="form-control mb-3"
                                 placeholder="Password">
 

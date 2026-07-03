@@ -162,7 +162,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # OPENAPI METADATA CONFIG (LAB 14)
 # =========================================
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Smart City Portal API',  # [cite: 47]
+    'TITLE': 'smart city Portal API',  # [cite: 47]
     'DESCRIPTION': 'Dokumentasi REST API resmi untuk Portal Pelaporan Laporan Warga',  # [cite: 48]
     'VERSION': '1.0.0',  # [cite: 49]
     'SERVE_INCLUDE_SCHEMA': False,  # [cite: 50]

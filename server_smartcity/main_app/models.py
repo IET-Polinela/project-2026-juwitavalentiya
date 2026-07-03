@@ -31,5 +31,18 @@ class Report(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # Peta transisi status resmi: hanya boleh naik satu tahap, tidak boleh loncat.
+    STATUS_TRANSITIONS = {
+        'DRAFT': ['REPORTED'],
+        'REPORTED': ['VERIFIED'],
+        'VERIFIED': ['IN_PROGRESS'],
+        'IN_PROGRESS': ['RESOLVED'],
+        'RESOLVED': [],
+    }
+
+    def get_valid_next_statuses(self):
+        return self.STATUS_TRANSITIONS.get(self.status, [])
+
     def __str__(self):
         return self.title
+    

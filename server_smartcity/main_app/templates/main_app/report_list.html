@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3>Manajemen Laporan (Admin)</h3>
+
+<p>
+    Total laporan: {{ total_reports }} |
+    Reported: {{ reported_count }} |
+    Verified: {{ verified_count }} |
+    In Progress: {{ in_progress_count }} |
+    Resolved: {{ resolved_count }}
+</p>
+
+<a class="btn btn-primary mb-3" href="{% url 'add_report' %}">+ Tambah Laporan</a>
+
+<div class="mb-3">
+    <input type="text" id="searchInput" class="form-control" placeholder="Cari laporan...">
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Judul</th>
+            <th>Kategori</th>
+            <th>Status</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody id="reportTableBody">
+        {% for report in reports %}
+        <tr>
+            <td>{{ report.title }}</td>
+            <td>{{ report.category }}</td>
+            <td>{{ report.status }}</td>
+            <td>
+                <a class="btn btn-sm btn-warning" href="{% url 'update_report' pk=report.id %}">Edit</a>
+                <a class="btn btn-sm btn-danger" href="{% url 'delete_report' pk=report.id %}">Hapus</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">Belum ada laporan.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const tableBody = document.getElementById('reportTableBody');
+
+    if (!searchInput || !tableBody) return;
+
+    const renderRows = (rows) => {
+        if (!rows.length) {
+            tableBody.innerHTML = '<tr><td colspan="4">Tidak ada laporan.</td></tr>';
+            return;
+        }
+
+        tableBody.innerHTML = rows.map((report) => `
+            <tr>
+                <td>${report.title || ''}</td>
+                <td>${report.category || ''}</td>
+                <td>${report.status || ''}</td>
+                <td>
+                    <a class="btn btn-sm btn-warning" href="/edit/${report.id}/">Edit</a>
+                    <a class="btn btn-sm btn-danger" href="/delete/${report.id}/">Hapus</a>
+                </td>
+            </tr>
+        `).join('');
+    };
+
+    searchInput.addEventListener('keyup', function () {
+        const q = this.value.trim();
+
+        fetch(`/search/?q=${encodeURIComponent(q)}`)
+            .then((response) => response.json())
+            .then((data) => {
+                const rows = Array.isArray(data.results)
+                    ? data.results
+                    : (Array.isArray(data.reports) ? data.reports : []);
+                renderRows(rows);
+            })
+            .catch(() => renderRows([]));
+    });
+});
+</script>
+
+{% endblock %}

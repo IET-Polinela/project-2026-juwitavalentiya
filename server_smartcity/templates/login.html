@@ -7,7 +7,7 @@
 
         <h4 class="text-center mb-3 text-pink">🌸 Login Akun 🌸</h4>
 
-        <form method="post">
+        <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
 
             {% if form.errors %}
@@ -29,7 +29,7 @@
                 <input type="password" name="password" class="form-control" placeholder="Password">
             </div>
 
-            <button class="btn btn-primary w-100">
+            <button type="submit" class="btn btn-primary w-100">
                 Login
             </button>
 
