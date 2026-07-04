@@ -67,7 +67,7 @@ def dashboard_view(request):
     recent_reports = Report.objects.order_by('-id')[:5]
 
     resolved_reports = Report.objects.filter(
-        status='DONE'
+        status='RESOLVED'  # disinkronkan dengan STATUS_CHOICES di models.py
     ).order_by('-id')[:5]
 
     context = {
@@ -184,7 +184,7 @@ def report_detail_api(request, pk):
 
 
 # =========================================
-# CREATE REPORT
+# CREATE REPORT — HANYA CITIZEN, BUKAN ADMIN
 # =========================================
 class ReportCreateView(LoginRequiredMixin, CreateView):
 
@@ -194,37 +194,40 @@ class ReportCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('report_list')
 
     def dispatch(self, request, *args, **kwargs):
-
         if not request.user.is_authenticated:
             return redirect('login')
 
-        if not request.user.is_admin:
+        # Admin TIDAK BOLEH menambah laporan — hanya citizen yang boleh.
+        if request.user.is_admin or request.user.is_superuser:
             messages.error(
                 request,
-                "❌ Hanya admin yang bisa menambah laporan!"
+                "❌ Admin tidak diperbolehkan membuat laporan baru!"
             )
             return redirect('report_list')
 
-        return super().dispatch(
-            request,
-            *args,
-            **kwargs
-        )
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-
+        # Kaitkan laporan ke user yang login (dipakai untuk cek kepemilikan & tampilan "Laporan Saya")
         form.instance.reporter = self.request.user
+
+        # Status awal laporan baru dari citizen
+        form.instance.status = 'REPORTED'
+
+        # Catatan: identitas pelapor ke publik/admin SUDAH dianonimkan
+        # lewat ReportSerializer.get_reporter() (API) dan template HTML
+        # yang tidak menampilkan field reporter. Tidak perlu field
+        # tambahan 'is_anonymous' di model untuk ini.
 
         messages.success(
             self.request,
-            "✅ Laporan berhasil ditambahkan"
+            "✅ Laporan Anda berhasil dikirim!"
         )
-
         return super().form_valid(form)
 
 
 # =========================================
-# UPDATE REPORT
+# UPDATE REPORT — ADMIN DILARANG, CITIZEN HANYA BOLEH EDIT MILIK SENDIRI
 # =========================================
 class ReportUpdateView(LoginRequiredMixin, UpdateView):
 
@@ -234,35 +237,35 @@ class ReportUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('report_list')
 
     def dispatch(self, request, *args, **kwargs):
-
         if not request.user.is_authenticated:
             return redirect('login')
 
-        if not request.user.is_admin:
+        # Admin hanya boleh mengubah status (lewat ReportUpdateStatusView), bukan isi laporan.
+        if request.user.is_admin or request.user.is_superuser:
             messages.error(
                 request,
-                "❌ Tidak punya akses edit!"
+                "❌ Admin hanya diizinkan memperbarui status laporan, bukan mengubah isinya!"
             )
             return redirect('report_list')
 
-        return super().dispatch(
-            request,
-            *args,
-            **kwargs
-        )
+        # Citizen hanya boleh mengedit laporan miliknya sendiri.
+        report = self.get_object()
+        if report.reporter != request.user:
+            messages.error(request, "❌ Anda tidak berhak mengedit laporan ini!")
+            return redirect('report_list')
+
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-
         messages.success(
             self.request,
-            "✅ Laporan berhasil diupdate"
+            "✅ Laporan berhasil diperbarui"
         )
-
         return super().form_valid(form)
 
 
 # =========================================
-# DELETE REPORT
+# DELETE REPORT — TETAP KHUSUS ADMIN (moderasi/spam removal)
 # =========================================
 class ReportDeleteView(LoginRequiredMixin, DeleteView):
 
@@ -271,7 +274,6 @@ class ReportDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('report_list')
 
     def dispatch(self, request, *args, **kwargs):
-
         if not request.user.is_authenticated:
             return redirect('login')
 
@@ -289,26 +291,19 @@ class ReportDeleteView(LoginRequiredMixin, DeleteView):
         )
 
     def delete(self, request, *args, **kwargs):
-
         messages.success(
             self.request,
             "🗑️ Laporan berhasil dihapus"
         )
-
-        return super().delete(
-            request,
-            *args,
-            **kwargs
-        )
+        return super().delete(request, *args, **kwargs)
 
 
 # =========================================
-# UPDATE STATUS
+# UPDATE STATUS — SATU-SATUNYA AKSI YANG BOLEH DILAKUKAN ADMIN TERHADAP LAPORAN CITIZEN
 # =========================================
 class ReportUpdateStatusView(LoginRequiredMixin, View):
 
     def dispatch(self, request, *args, **kwargs):
-
         if not request.user.is_authenticated:
             return redirect('login')
 
@@ -326,7 +321,6 @@ class ReportUpdateStatusView(LoginRequiredMixin, View):
         )
 
     def post(self, request, pk):
-
         report = get_object_or_404(
             Report,
             pk=pk
