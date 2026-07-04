@@ -58,14 +58,14 @@ const { test, expect } = require('@playwright/test');
 //     mungkin diblokir oleh kebijakan CORS browser. Disarankan menggunakan
 //     http-server atau Live Server extension.
 // ---------------------------------------------------------------------------
-const BASE_URL = 'http://localhost:8000';
+const BASE_URL = 'http://103.151.63.84:8004';
 
 // Path ke file SPA relatif terhadap folder server_smartcity
 // Gunakan salah satu opsi di bawah ini sesuai environment Anda:
 //   Opsi 1 (Live Server): 'http://127.0.0.1:5500/smartcity_citizen_spa/index.html'
 //   Opsi 2 (http-server):  'http://localhost:8080/index.html'
 //   Opsi 3 (file://):      'file:///C:/Users/.../smartcity_citizen_spa/index.html'
-const SPA_URL = 'http://127.0.0.1:5500/smartcity_citizen_spa_24782014/index.html';
+const SPA_URL = 'https://iet-polinela.github.io/project-2026-juwitavalentiya/';
 
 // ---------------------------------------------------------------------------
 // KREDENSIAL TEST 
@@ -221,7 +221,7 @@ async function clearAuthTokens(page) {
  * @param {import('@playwright/test').Page} page - Objek halaman Playwright
  */
 async function mockSPAApiUrl(page) {
-    const BASE_URL = 'http://localhost:8000';
+    const BASE_URL = 'http://103.151.63.84:8004';
 
     // Gunakan wildcard **/api/** untuk menangkap dari host/domain mana saja
     await page.route('**/api/**', async (route) => {

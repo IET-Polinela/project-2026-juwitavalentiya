@@ -1,4 +1,10 @@
-const BASE_URL = "http://103.151.63.84:8004";
+const BASE_URL = (() => {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+        return 'http://localhost:8000';
+    }
+    return 'http://103.151.63.84:8004';
+})();
 
 async function requestAPI(endpoint, method = "GET", data = null) {
 
